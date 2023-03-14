@@ -1,4 +1,4 @@
-package leftmenu;
+package forms;
 
 public class AlertsFrameWindowsForm {
 }

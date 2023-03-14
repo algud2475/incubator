@@ -2,6 +2,7 @@ package elements;
 
 import driver.Driver;
 import org.openqa.selenium.*;
+import utils.WaitsUtil;
 
 public abstract class BaseElement {
     private By locator;
@@ -12,18 +13,18 @@ public abstract class BaseElement {
         this.elementName = elementName;
     }
 
-    protected WebElement getElement() {
-        return Driver.getDriver().findElement(locator);
-    }
-    protected By getLocator() {
-        return locator;
-    }
-    public String getElementName() {
-        return elementName;
+    protected WebElement getClickableElement() {
+        return WaitsUtil.isClickableWait(locator);
     }
 
     public void click() {
-        Driver.getDriver().findElement(locator).click();
+        WaitsUtil.isClickableWait(locator).click();
+    }
+
+    public void clickJS() {
+        WebElement webElement = getClickableElement();
+        ((JavascriptExecutor) Driver.getDriver()).executeScript("arguments[0].scrollIntoView(true);", webElement);
+        webElement.click();
     }
 
 }

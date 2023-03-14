@@ -1,4 +1,4 @@
-package leftmenu;
+package pages;
 
 import driver.Driver;
 import org.openqa.selenium.By;
@@ -9,11 +9,11 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
-public class BaseForm {
+public class BasePage {
     private By locator;
     private String name;
 
-    public BaseForm(By locator, String name) {
+    public BasePage(By locator, String name) {
         this.locator = locator;
         this.name = name;
     }
