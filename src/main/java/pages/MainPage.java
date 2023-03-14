@@ -3,7 +3,7 @@ package pages;
 import elements.Button;
 import org.openqa.selenium.By;
 
-public class MainPage extends BasePage {
+public class MainPage extends BaseForm {
     private static By locator = By.xpath("//img[contains(@class,'banner-image') and @alt='Selenium Online Training']");
     private static String name = "mainPage";
 

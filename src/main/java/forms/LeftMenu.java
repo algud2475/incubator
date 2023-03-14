@@ -1,6 +1,14 @@
 package forms;
 
-public class LeftMenu {
+import org.openqa.selenium.By;
+import pages.BaseForm;
+
+public class LeftMenu extends BaseForm {
+    private static By locator = By.xpath("//div[contains(@class,'left-pannel')]/div[contains(@class,'accordion')]");
+    public LeftMenu() {
+        super(locator, "Left Menu form");
+    }
+
     private AlertsFrameWindowsForm alertsFrameWindowsForm;
     private ElementsForm elementsForm;
 

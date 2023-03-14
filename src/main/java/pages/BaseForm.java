@@ -9,11 +9,11 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
-public class BasePage {
+public class BaseForm {
     private By locator;
     private String name;
 
-    public BasePage(By locator, String name) {
+    public BaseForm(By locator, String name) {
         this.locator = locator;
         this.name = name;
     }
