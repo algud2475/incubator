@@ -106,9 +106,10 @@
     "timeoutImplicit" : 0,
     "timeoutCondition" : 30,
     "timeoutScript" : 10,
-    "timeoutPageLoad" : 1500,
-    "timeoutPollingInterval": 30,
-    "timeoutCommand": 120
+    "timeoutPageLoad" : 60,
+    "timeoutPollingInterval": 300,
+    "timeoutCommand": 120,
+    "timeoutEmailReceive": 30
   },
   "retry": {
     "number": 2,

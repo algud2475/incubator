@@ -1,46 +1,39 @@
 package google;
 
+import aquality.selenium.browser.AqualityServices;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import utils.ConfigUtil;
+import utils.HttpAPIUtil;
+import utils.JSONReader;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
 public class GoogleOAuth2 {
-    public static String getAccessToken() throws IOException {
-        byte[] postDataBytes = getPostCodeToGetAccessToken().getBytes(StandardCharsets.UTF_8);
-        URL tokenURL = new URL(ConfigUtil.getProperty("token_uri"));
-        HttpURLConnection connection = (HttpURLConnection) tokenURL.openConnection();
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        connection.setRequestProperty("Content-Length", String.valueOf(postDataBytes.length));
-        connection.setDoOutput(true);
-        connection.getOutputStream().write(postDataBytes);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        StringBuilder response = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            response.append(line);
+    public static String getAccessToken() {
+        String accessToken = null;
+        String tokenURL = JSONReader.read().getValue("/gmailAPI/token_uri").toString();
+        String postCode = getPostCodeToGetAccessToken();
+        String response = HttpAPIUtil.createPostRequest(tokenURL, postCode);
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> jsonMap = mapper.readValue(response.toString(), Map.class);
+            accessToken = String.valueOf(jsonMap.get("access_token"));
+        } catch (IOException e) {
+            AqualityServices.getLogger().info(e.getMessage());
+            throw new RuntimeException(e);
         }
-        reader.close();
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> jsonMap = mapper.readValue(response.toString(), Map.class);
-        return String.valueOf(jsonMap.get("access_token"));
+        return accessToken;
     }
 
     private static String getPostCodeToGetAccessToken() {
         Map<String, String> params = new HashMap<>();
-        params.put("client_id", ConfigUtil.getProperty("client_id"));
-        params.put("client_secret", ConfigUtil.getProperty("client_secret"));
+        params.put("client_id", JSONReader.read().getValue("/gmailAccount/client_id").toString());
+        params.put("client_secret", JSONReader.read().getValue("/gmailAccount/client_secret").toString());
         params.put("grant_type", "refresh_token");
-        params.put("refresh_token", ConfigUtil.getProperty("refresh_token"));
+        params.put("refresh_token", JSONReader.read().getValue("/gmailAccount/refresh_token").toString());
         StringBuilder postData = new StringBuilder();
         for (Map.Entry<String, String> param : params.entrySet()) {
             if (postData.length() != 0) {

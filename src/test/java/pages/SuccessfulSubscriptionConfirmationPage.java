@@ -8,8 +8,7 @@ import org.openqa.selenium.By;
 public class SuccessfulSubscriptionConfirmationPage extends Form {
     private static final By LOCATOR = By.xpath("//h1[contains(text(),'Your subscription has been successfully confirmed.')]");
     private static final String NAME = "Successful Subscription Confirmation page";
-    private final By locatorBackToTheSiteButton = By.xpath("//span[contains(text(),'Back to the site')]");
-    private final IButton backToTheSiteButton = AqualityServices.getElementFactory().getButton(locatorBackToTheSiteButton, "Back to the site button");
+    private final IButton backToTheSiteButton = AqualityServices.getElementFactory().getButton(By.xpath("//span[contains(text(),'Back to the site')]"), "Back to the site button");
 
     public SuccessfulSubscriptionConfirmationPage() {
         super(LOCATOR, NAME);

@@ -1,0 +1,20 @@
+{
+  "gmailAccount": {
+    "client_id": "312972972709-91bp6vtlbq7u6t3v56nb6a4o57pljnhu.apps.googleusercontent.com",
+    "project_id": "try2-384407",
+    "client_secret": "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",
+    "redirect_uri": "http://localhost",
+    "code": "4/0AVHEtk5ri7109ifMsWD9at5Rezsj7EiMGqiLfup1R7cddybVx-PrupLW3j7wXbmDI4x9hw",
+    "refresh_token": "1//01vAlt6MrmS9UCgYIARAAGAESNwF-L9Irhr5kNxPNcSD7lcHfz5qps7EOc1LnAPBnaeem-I8XrLq4KhGlwZTCoviYGJuwDZO29Js",
+    "email" : "anjkir2475@gmail.com"
+  },
+  "gmailAPI": {
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "users.messages.list" : "https://gmail.googleapis.com/gmail/v1/users/anjkir2475@gmail.com/messages"
+  },
+  "testCaseData": {
+    "MainPageURL": "https://www.euronews.com/"
+  }
+}

@@ -5,18 +5,14 @@ import google.GmailAPI;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import pages.*;
-import utils.ConfigUtil;
-
-import java.io.IOException;
-import java.time.Duration;
-import java.util.concurrent.TimeoutException;
+import utils.JSONReader;
 
 public class TestGmailAPI extends BaseTest {
+    private static final String EMAIL = JSONReader.read().getValue("/gmailAccount/email").toString();
 
     @Test
-    public void testGmailAPI() throws IOException, InterruptedException, TimeoutException {
+    public void testGmailAPI() {
         MainPage mainPage = new MainPage();
-        AqualityServices.getBrowser().goTo(mainPage.getMainPageURL());
 
         Assert.assertTrue(mainPage.state().waitForDisplayed(), "Main page is not opened");
 
@@ -26,26 +22,23 @@ public class TestGmailAPI extends BaseTest {
 
         mainPage.clickNewslettersLink();
         NewslettersPage newslettersPage = new NewslettersPage();
+        String randomSubscriptionPlanID = newslettersPage.getSubscriptionPlanID();
 
         Assert.assertTrue(newslettersPage.state().waitForDisplayed(), "Newsletters page is not opened");
 
-        newslettersPage.chooseRandomSubscriptionPlan();
-        newslettersPage.clickRandomSubscriptionPlanButton();
+        newslettersPage.clickSubscriptionPlanButton();
         EmailForm emailForm = new EmailForm();
 
         Assert.assertTrue(emailForm.state().waitForDisplayed(), "Email form has not appeared");
 
         int numberOfMessagesBeforeSubscription = GmailAPI.getNumberOfMessages();
-        emailForm.fillEmailField(ConfigUtil.getProperty("email"));
+        emailForm.fillEmailField(EMAIL);
         emailForm.clickEmailSubmitButton();
-        AqualityServices.getConditionalWait().waitForTrue(() -> {
-            try {
-                return numberOfMessagesHasChanged(numberOfMessagesBeforeSubscription);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }, Duration.ofSeconds(10), Duration.ofMillis(1000), "No new email is received");
-        String confirmSubscriptionLink = GmailAPI.getLinkFromMessageText();
+
+        Assert.assertTrue(GmailAPI.numberOfMessagesHasChanged(numberOfMessagesBeforeSubscription), "No new email is received");
+
+        String textFromEmail = GmailAPI.getTextFromEmail();
+        String confirmSubscriptionLink = GmailAPI.getLinkFromMessageText(textFromEmail);
 
         Assert.assertNotNull(confirmSubscriptionLink);
 
@@ -56,14 +49,17 @@ public class TestGmailAPI extends BaseTest {
         Assert.assertTrue(sucSubConPage.state().waitForDisplayed(), "Successful Subscription Confirmation Page is not opened");
 
         sucSubConPage.clickBackToTheSiteButton();
+        mainPage = new MainPage();
 
         Assert.assertTrue(mainPage.state().waitForDisplayed(), "Main page is not opened");
 
         mainPage.clickNewslettersLink();
-        newslettersPage.clickRandomSubscriptionPlanSeePreviewLink();
+        newslettersPage = new NewslettersPage(randomSubscriptionPlanID);
+        newslettersPage.clickSubscriptionPlanSeePreviewLink();
         PreviewPage previewPage = new PreviewPage();
 
-        Assert.assertTrue(previewPage.state().waitForDisplayed() && newslettersPage.getNameOfRandomSubscriptionPlan().equals(previewPage.getPreviewPageName()), "A preview of the required plan is not opened");
+        Assert.assertTrue(previewPage.state().waitForDisplayed(), "A preview page is not opened");
+        Assert.assertTrue(newslettersPage.getNameOfSubscriptionPlan().equals(previewPage.getPreviewPageName()), "A preview opened with another plan");
 
         previewPage.clickUnsubscribeLink();
         UnsubscribePage unsubscribePage = new UnsubscribePage();
@@ -71,25 +67,16 @@ public class TestGmailAPI extends BaseTest {
         Assert.assertTrue(unsubscribePage.state().waitForDisplayed(), "Unsubscribe page is not opened");
 
         int numberOfMessagesBeforeUnsubscribe = GmailAPI.getNumberOfMessages();
-        unsubscribePage.fillEmailField(ConfigUtil.getProperty("email"));
+        unsubscribePage.fillEmailField(EMAIL);
         unsubscribePage.clickEmailSubmitButton();
 
         Assert.assertTrue(unsubscribePage.subscriptionWasCanceledTextIsDisplayed(), "A message that the subscription was canceled doesn't appear");
 
-        boolean newEmailIsReceived = AqualityServices.getConditionalWait().waitFor(() -> {
-            try {
-                return numberOfMessagesHasChanged(numberOfMessagesBeforeUnsubscribe);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }, Duration.ofSeconds(10), Duration.ofMillis(1000));
+        boolean newEmailIsReceived = GmailAPI.numberOfMessagesHasChanged(numberOfMessagesBeforeUnsubscribe);
         String lastEmailIdAfterUnsubscribe = GmailAPI.getLastEmailId();
 
-        Assert.assertTrue(!newEmailIsReceived & lastEmailIdAfterSubscription.equals(lastEmailIdAfterUnsubscribe), "The letter has arrived");
-    }
-
-    public boolean numberOfMessagesHasChanged(int numberOfMessagesBefore) throws IOException {
-        return GmailAPI.getNumberOfMessages() != numberOfMessagesBefore;
+        Assert.assertTrue(!newEmailIsReceived, "The letter has arrived");
+        Assert.assertTrue(lastEmailIdAfterSubscription.equals(lastEmailIdAfterUnsubscribe), "The last email in the inbox doesn`t have a request to confirm subscription");
     }
 }
 

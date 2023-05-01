@@ -11,42 +11,54 @@ import utils.RandomUtil;
 import java.util.List;
 
 public class NewslettersPage extends Form {
-    private static final By LOCATOR = By.xpath("//section[@id='cpt-newletters-archive-esturgeon-block_624d5b94e56bc']");
+    private static final By LOCATOR = By.xpath("//section[contains(@id,'cpt-newletters-archive-esturgeon-block')]");
     private static final String NAME = "Newsletters page";
-    private final By locatorSubscriptionPlanButton = By.xpath("//label[contains(@class,'block w-full btn-tertiary unchecked-label cursor-pointer')]");
-    private IButton randomSubscriptionPlanButton;
-    private ILink randomSubscriptionPlanSeePreviewLink;
-    private String locatorRandomSubscriptionPlanButton;
-    private String locatorRandomSubscriptionPlanSeePreviewLink;
-    private String nameOfRandomSubscriptionPlan;
+    private final List<IButton> subscriptionPlanButtons = AqualityServices.getElementFactory().findElements(By.xpath("//label[contains(@class,'block w-full btn-tertiary unchecked-label cursor-pointer')]"), ElementType.BUTTON);
+    private String subscriptionPlanID;
+    private String nameOfSubscriptionPlan;
+    private String locatorSubscriptionPlanButton = "//label[contains(@class,'block w-full btn-tertiary unchecked-label cursor-pointer') and @for=%s]";
+    private IButton subscriptionPlanButton;
+    private String locatorSubscriptionPlanSeePreviewLink = "//label[contains(@class,'block w-full btn-tertiary unchecked-label cursor-pointer') and @for=%s]/ancestor::*[2]/a[contains(@class,'mt-3')]";
+    private ILink subscriptionPlanSeePreviewLink;
 
     public NewslettersPage() {
         super(LOCATOR, NAME);
+        subscriptionPlanID = getRandomSubscriptionPlanID();
+        locatorSubscriptionPlanButton = String.format(locatorSubscriptionPlanButton, subscriptionPlanID);
+        locatorSubscriptionPlanSeePreviewLink = String.format(locatorSubscriptionPlanSeePreviewLink, subscriptionPlanID);
+        subscriptionPlanButton = AqualityServices.getElementFactory().getButton(By.xpath(locatorSubscriptionPlanButton), "Subscription Plan button");
+        subscriptionPlanSeePreviewLink = AqualityServices.getElementFactory().getLink(By.xpath(locatorSubscriptionPlanSeePreviewLink), "Subscription Plan See Preview Link");
+        nameOfSubscriptionPlan = subscriptionPlanSeePreviewLink.getAttribute("href").substring(AqualityServices.getBrowser().getCurrentUrl().length() + 1);
     }
 
-    public void clickRandomSubscriptionPlanSeePreviewLink() {
-        randomSubscriptionPlanSeePreviewLink.getJsActions().click();
+    public NewslettersPage(String subscriptionPlanID) {
+        super(LOCATOR, NAME);
+        this.subscriptionPlanID = subscriptionPlanID;
+        locatorSubscriptionPlanButton = String.format(locatorSubscriptionPlanButton, subscriptionPlanID);
+        locatorSubscriptionPlanSeePreviewLink = String.format(locatorSubscriptionPlanSeePreviewLink, subscriptionPlanID);
+        subscriptionPlanButton = AqualityServices.getElementFactory().getButton(By.xpath(locatorSubscriptionPlanButton), "Subscription Plan button");
+        subscriptionPlanSeePreviewLink = AqualityServices.getElementFactory().getLink(By.xpath(locatorSubscriptionPlanSeePreviewLink), "Subscription Plan See Preview Link");
+        nameOfSubscriptionPlan = subscriptionPlanSeePreviewLink.getAttribute("href").substring(AqualityServices.getBrowser().getCurrentUrl().length() + 1);
     }
 
-    public void clickRandomSubscriptionPlanButton() {
-        randomSubscriptionPlanButton.click();
+    public void clickSubscriptionPlanSeePreviewLink() {
+        subscriptionPlanSeePreviewLink.getJsActions().click();
     }
 
-    public String getNameOfRandomSubscriptionPlan() {
-        return nameOfRandomSubscriptionPlan;
+    public void clickSubscriptionPlanButton() {
+        subscriptionPlanButton.getJsActions().click();
     }
 
-    public void chooseRandomSubscriptionPlan() {
-        List<IButton> subscriptionPlanButtons = getSubscriptionPlanButtons();
+    public String getNameOfSubscriptionPlan() {
+        return nameOfSubscriptionPlan;
+    }
+
+    public String getSubscriptionPlanID() {
+        return subscriptionPlanID;
+    }
+
+    private String getRandomSubscriptionPlanID() {
         int randomButtonNumber = RandomUtil.getRandomLimitedNumber(subscriptionPlanButtons.size());
-        randomSubscriptionPlanButton = subscriptionPlanButtons.get(randomButtonNumber);
-        locatorRandomSubscriptionPlanButton = String.format("//label[contains(@class,'block w-full btn-tertiary unchecked-label cursor-pointer') and @for=%s]", randomSubscriptionPlanButton.getAttribute("for"));
-        locatorRandomSubscriptionPlanSeePreviewLink = locatorRandomSubscriptionPlanButton + "/ancestor::*[2]/a[contains(@class,'text-primary mt-3 inline-block')]";
-        randomSubscriptionPlanSeePreviewLink = AqualityServices.getElementFactory().getLink(By.xpath(locatorRandomSubscriptionPlanSeePreviewLink), "Random Subscription Plan See Preview Link");
-        nameOfRandomSubscriptionPlan = randomSubscriptionPlanSeePreviewLink.getAttribute("href").substring(AqualityServices.getBrowser().getCurrentUrl().length() + 1);
-    }
-
-    private List<IButton> getSubscriptionPlanButtons() {
-        return AqualityServices.getElementFactory().findElements(locatorSubscriptionPlanButton, ElementType.BUTTON);
+        return subscriptionPlanButtons.get(randomButtonNumber).getAttribute("for");
     }
 }
